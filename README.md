@@ -53,3 +53,5 @@ See [`docs/development.md`](./docs/development.md), [`docs/troubleshooting.md`](
 ## License
 
 The project is released under the MIT License. See [`LICENSE`](./LICENSE).
+
+Last updated: 2026-10-13 16:02 UTC
