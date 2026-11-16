@@ -1,4 +1,4 @@
-# Troubleshooting
+# 🩺 Troubleshooting
 
 ## Chrome cannot start
 
