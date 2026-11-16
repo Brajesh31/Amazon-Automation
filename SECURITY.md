@@ -1,11 +1,25 @@
 # Security Policy
 
-## Safe use
+## Project scope
 
-This script drives a real public website and can interact with shopping surfaces. Never commit credentials, cookies, session profiles, payment information, or personal data. Do not use the project to bypass access controls, CAPTCHAs, rate limits, fraud controls, or regional restrictions.
+This repository is a small educational Selenium prototype. It is not designed for production shopping, account automation, checkout or payment handling.
 
-Prefer a local mock site or an authorized test environment for development. Use a disposable browser profile and test-safe data. Keep Selenium, Python, Chrome, and ChromeDriver patched.
+## Safe operation
 
-## Reporting
+- Use only systems and workflows you have explicit permission to test.
+- Prefer local mock pages or an approved sandbox.
+- Do not automate sign-in, MFA, CAPTCHA solving, checkout, payment or purchases.
+- Do not bypass rate limits, bot detection, fraud controls or other access safeguards.
+- Do not store cookies, session tokens, passwords, payment data or personal information in Git.
+- Keep Python, Selenium, Chrome and driver components updated.
+- Redact machine-specific paths, identifiers, tokens and personal data from reports.
 
-Report suspected vulnerabilities or accidental secret exposure privately to Brajesh Kumar (`@brajesh31`) rather than opening a public issue. Include affected files, reproduction steps, impact, and remediation details without sending secrets or personal data.
+## Reporting vulnerabilities
+
+Report suspected security issues privately to the repository maintainer, Brajesh Kumar, through [@brajesh31](https://github.com/Brajesh31). Do not publish exploit details, working credentials or personal data in a public issue.
+
+Include a concise description, affected component, impact, sanitized reproduction steps and a suggested mitigation where possible. Allow reasonable time for investigation and remediation before public disclosure.
+
+## Secret exposure
+
+If a credential or session token is committed, revoke or rotate it immediately. Removing it from the latest commit does not invalidate the secret or remove it from repository history.
