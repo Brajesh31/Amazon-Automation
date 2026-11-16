@@ -1,50 +1,48 @@
 # Automation Workflow
 
-## Purpose
+## Purpose and scope
 
-This guide documents the exact sequence currently implemented by `main.py`. It is not a guarantee that the live website will behave the same way when the script is executed.
+This guide records the exact sequence currently implemented in `main.py`. It is not a promise that the live website behaves consistently or that the final operation succeeds.
 
-## Step 1: Construct the automation object
+## 1. Construct the automation object
 
-The `AmazonCartAutomation` constructor stores a local driver path, sets a driver-related environment variable, creates a default Chrome service, starts Chrome, and deletes cookies.
+The constructor stores a developer-specific driver path, sets a driver-related environment variable, builds a default Chrome service, starts Chrome, and deletes cookies in that browser session.
 
-**Important:** the stored path is not passed to the `ChromeService` constructor. Driver startup therefore depends on Selenium Manager or external driver discovery rather than that attribute.
+The configured path is not passed to `ChromeService`. Browser startup therefore depends on default driver discovery or Selenium Manager.
 
-## Step 2: Prepare the browser
+## 2. Prepare the browser
 
-`setup()` calls `maximize_window()`. It does not validate browser capabilities, configure a profile, or set a page-load timeout.
+`setup()` maximizes the window. It does not explicitly configure a profile, page-load timeout, download directory, or browser capabilities.
 
-## Step 3: Open the target
+## 3. Open the target site
 
-The workflow navigates directly to the US Amazon homepage. There is no configurable target host or region.
+The method navigates to the fixed US Amazon homepage. The target region and URL are not configurable.
 
-## Step 4: Search
+## 4. Search
 
-The script locates the search box by the ID `twotabsearchtextbox`, sends the product string, and submits the form. It does not validate the query or confirm that the expected results page loaded.
+The workflow locates the search input by ID `twotabsearchtextbox`, enters the supplied product string and submits the form. It does not validate the query or assert that the expected search results loaded.
 
-## Step 5: Open a result
+## 5. Open a result
 
-The script waits up to ten seconds for an element at a long absolute XPath and clicks it. The XPath assumes a particular DOM structure and a particular position of the result. Search ranking, sponsored placements, localization, and markup changes can invalidate this assumption.
+The code waits up to ten seconds for an element identified by an absolute XPath and clicks it. Absolute XPaths are coupled to a specific page layout and search-result order. Sponsored placements, localization, experiments and DOM changes may invalidate it.
 
-## Step 6: Interact with a product-page control
+## 6. Interact with product page
 
-The script waits up to 100 seconds for an element with ID `wishListMainButton` and clicks it. The code does not confirm the resulting state and does not prove that the action adds the product to a cart.
+The workflow waits up to 100 seconds for an element with ID `wishListMainButton` and clicks it. The code does not verify the resulting state. The selector does not establish that an item was added to the shopping cart.
 
-## Step 7: Close the browser
+## 7. Close browser
 
-The entry point calls `close_browser()`, which calls `driver.quit()`. This happens only on the normal path. An exception before that call can leave a browser process running.
+The entry point calls `close_browser()`, which invokes `driver.quit()`. This occurs only on the normal path. If an earlier operation raises an exception, browser cleanup may not run.
 
-## Expected future workflow design
+## Safer future workflow
 
-A safer and more testable design should:
+- Default behavior should use a local mock storefront.
+- Validate the target host before navigation.
+- Centralize selectors in a page-object abstraction.
+- Wait for observable page state, not merely element presence.
+- Verify outcomes in a controlled test fixture.
+- Guarantee cleanup with `finally` or a context manager.
+- Capture sanitized diagnostics only.
+- Do not automate login, checkout, payment, purchasing or bypasses of safeguards.
 
-- Default to a local mock page.
-- Validate the target host before browser navigation.
-- Centralize selectors in a page-object class.
-- Wait for a meaningful page state rather than element presence alone.
-- Verify the outcome using a non-sensitive, explicit assertion.
-- Capture sanitized diagnostic evidence on failure.
-- Always close the browser in a `finally` block.
-- Avoid login, checkout, purchase, or safeguard-bypass operations.
-
-Any new workflow should update this document and the tests in the same change.
+Update this guide and the tests whenever the workflow changes.
