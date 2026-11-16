@@ -1,69 +1,62 @@
 # Installation Guide
 
-## 1. Supported baseline
+## Prerequisites
 
-The repository currently targets Python 3.10 or newer and uses Selenium. The project does not currently publish a tested operating-system matrix. Chrome and its driver must be compatible with each other.
-
-## 2. Prerequisites
-
-Install:
-
-- Python 3.10+.
-- Google Chrome.
+- Python 3.10 or newer.
 - Git.
-- A terminal with permission to create a virtual environment.
-- Network access for installing dependencies and, if Selenium Manager is used, retrieving an appropriate driver.
+- Google Chrome.
+- Selenium and a compatible driver setup.
+- Authorization for the browser workflow and target environment.
 
-For repeatable work, record the exact Python, Selenium, Chrome, and ChromeDriver versions used during validation.
+This repository does not publish a tested OS matrix. Chrome and ChromeDriver compatibility is version-sensitive.
 
-## 3. Clone the repository
+## Clone
 
 ```bash
 git clone https://github.com/Brajesh31/Amazon-Automation.git
 cd Amazon-Automation
 ```
 
-## 4. Create a virtual environment
+## Create a virtual environment
 
 ```bash
 python -m venv .venv
 ```
 
-Activate it using the command appropriate for your shell:
+Activate on Windows PowerShell:
 
 ```powershell
-# Windows PowerShell
 .venv\\Scripts\\Activate.ps1
 ```
 
+Activate on Windows Command Prompt:
+
 ```bat
-:: Windows Command Prompt
 .venv\\Scripts\\activate.bat
 ```
 
+Activate on macOS or Linux:
+
 ```bash
-# macOS / Linux
 source .venv/bin/activate
 ```
 
-If PowerShell blocks activation, use the Python executable in the virtual environment directly or consult your machine's execution policy. Do not weaken system policy globally just to run this project.
+If shell policy prevents activation, use the interpreter under the virtual environment directly. Do not weaken system-wide execution policy simply to run this project.
 
-## 5. Install dependencies
-
-Upgrade pip and install the repository's declared package set:
+## Install dependencies
 
 ```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-## 6. Install and verify Chrome
+## Install Chrome and verify
 
-Install Chrome through the official distribution channel for your operating system. Check that the executable starts before launching Selenium.
+Install Chrome separately through a trusted distribution channel. Confirm it opens. The repository's `Drivers/chromedriver` file is platform-specific and may not match the installed browser.
 
-The repository includes a Linux ChromeDriver binary under `Drivers/`. It is not a universal driver and it may not match your browser. The current Python code does not explicitly pass its hard-coded path to `ChromeService`. Prefer Selenium Manager with a current Selenium release, or explicitly configure a locally installed compatible driver. See [Browser and driver management](browser-and-driver.md).
+The current script stores a driver path but does not pass that path to `ChromeService`. Prefer Selenium Manager with a current Selenium installation, or explicitly configure a compatible driver. See [Browser and driver management](browser-and-driver.md).
 
-## 7. Verify the environment
+## Verify environment
 
 ```bash
 python --version
@@ -72,17 +65,16 @@ python -m pip check
 python -m py_compile main.py
 ```
 
-These commands verify the Python installation and syntax, not whether the live website's DOM still matches the selectors.
+These checks validate the local Python environment and syntax. They do not validate selectors against the current live website.
 
-## 8. Run
+## Run
 
 ```bash
 python main.py
 ```
 
-The current entry point opens a live website and uses a hard-coded product search. Review [Workflow](workflow.md) and [Security and privacy](security-and-privacy.md) first. Do not use personal shopping or payment accounts.
+Review [Workflow](workflow.md) and [Security and privacy](security-and-privacy.md) first. The current script visits a live website and should not be run with a personal shopping or payment account.
 
-## 9. Uninstall
+## Remove local environment
 
-Deactivate the virtual environment, then remove the local `.venv` directory. The project does not install a system service or background process.
-
+Deactivate the virtual environment and delete the local `.venv` folder. The project does not install a system service or background daemon.
