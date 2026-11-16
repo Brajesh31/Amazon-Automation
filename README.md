@@ -2,21 +2,21 @@
 
 A compact Python and Selenium browser-automation proof of concept. The current script opens Amazon.com, searches for a configured product name, opens a search result, and attempts to interact with a product-page control.
 
-> **Important scope note:** this repository is an educational prototype, not a supported shopping bot or a reliable end-to-end cart test. The current selector targets an element with ID `wishListMainButton`, which does not establish that the item is added to the cart. The automation must not be used to bypass authentication, CAPTCHAs, rate limits, fraud controls, or purchase safeguards.
+> **Important:** this is an educational prototype, not a supported shopping bot or reliable end-to-end cart test. The current selector targets `wishListMainButton`, which does not establish that an item is added to the cart. Do not use this project to bypass authentication, CAPTCHAs, rate limits, fraud controls, or purchase safeguards.
 
 ## Contents
 
 - [Project status](#project-status)
-- [What the current implementation does](#what-the-current-implementation-does)
+- [Current behavior](#current-behavior)
 - [Architecture](#architecture)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Run locally](#run-locally)
-- [Safety and responsible use](#safety-and-responsible-use)
+- [Safety](#safety)
 - [Known limitations](#known-limitations)
 - [Validation](#validation)
-- [Documentation map](#documentation-map)
+- [Documentation](#documentation)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -28,63 +28,60 @@ A compact Python and Selenium browser-automation proof of concept. The current s
 | Browser automation | Selenium WebDriver |
 | Browser | Google Chrome |
 | Entry point | `main.py` |
-| Application structure | Single Python module and one automation class |
-| Configuration | Search term is currently hard-coded in the script |
+| Structure | One Python module and one automation class |
+| Configuration | Search term and target embedded in source |
 | Persistence | None |
 | Database | None |
 | HTTP API | None |
-| Automated tests | No test suite is currently present |
-| CI | Repository checks are defined in GitHub Actions |
+| Automated behavior tests | Not present |
+| CI | Syntax, dependency and documentation checks |
 | Production readiness | Not production-ready |
 
-## What the current implementation does
+## Current behavior
 
-The `AmazonCartAutomation` class in `main.py` currently performs the following sequence:
+The `AmazonCartAutomation` class currently:
 
 1. Constructs a Chrome WebDriver session.
-2. Deletes cookies from the newly created browser session.
-3. Maximizes the browser window when `setup()` is called.
+2. Deletes cookies from that session.
+3. Maximizes the window.
 4. Opens `https://www.amazon.com/`.
-5. Locates the search box using `twotabsearchtextbox`.
-6. Enters the hard-coded search term `Wireless Earbuds` and submits the search.
-7. Waits for a first-result link using an absolute XPath and clicks it.
-8. Waits for an element with ID `wishListMainButton` and clicks it.
-9. Quits Chrome when `close_browser()` is called.
+5. Locates the search field by ID `twotabsearchtextbox`.
+6. Searches for `Wireless Earbuds`.
+7. Opens a result using a hard-coded absolute XPath.
+8. Clicks an element whose ID is `wishListMainButton`.
+9. Quits Chrome on the normal execution path.
 
-The final interaction is not a verified add-to-cart operation. The element identifier suggests a wishlist-related control, and Amazon page structure may vary by region, account state, experiments, and time. Treat the final action as an unverified product-page interaction until it has been redesigned and tested against an explicitly authorized test environment.
+The final interaction is not a verified add-to-cart operation. The selector name appears wishlist-related, and the code does not assert that cart state changed. Treat it as an unverified product-page interaction.
 
 ## Architecture
 
-The implementation is intentionally small:
-
 ```text
 Amazon-Automation/
-├── main.py                 # Selenium workflow and entry point
+├── main.py
 ├── Drivers/
-│   └── chromedriver        # Committed platform-specific driver binary
-├── docs/                   # Project and maintainer documentation
+│   └── chromedriver
+├── docs/
 ├── .github/
-│   └── workflows/          # Repository validation workflow
-├── .env.example            # Notes about current configuration
-├── requirements.txt        # Python dependency declaration
+│   ├── ISSUE_TEMPLATE/
+│   └── workflows/
+├── requirements.txt
+├── .env.example
 └── README.md
 ```
 
-There is currently no page-object layer, configuration class, API server, database, task queue, persistent cart model, or browser-independent domain layer. The browser and the external site's DOM are the primary integration boundary.
+The project has no application server, database, frontend, scheduler, persistent data store, or service layer. The browser and external page DOM are the integration boundary.
 
 ## Requirements
 
 - Python 3.10 or newer.
-- Google Chrome installed on the machine running the script.
-- Selenium installed in the active Python environment.
-- A compatible ChromeDriver, or Selenium Manager support in the installed Selenium version.
-- An environment and target for which the operator has explicit permission to run browser automation.
+- Google Chrome.
+- Selenium from `requirements.txt`.
+- A compatible ChromeDriver or Selenium Manager support.
+- An environment and workflow you are authorized to test.
 
-Chrome and ChromeDriver compatibility is version-sensitive. Prefer Selenium Manager through a current Selenium installation rather than relying on a checked-in driver executable. See [Installation](docs/installation.md) and [Browser and driver management](docs/browser-and-driver.md).
+The repository contains a platform-specific ChromeDriver binary. It may not match your operating system or Chrome version. The current code also stores a machine-specific path but does not pass it into `ChromeService`. See [Browser and driver management](docs/browser-and-driver.md).
 
 ## Installation
-
-Clone the repository and create an isolated virtual environment:
 
 ```bash
 git clone https://github.com/Brajesh31/Amazon-Automation.git
@@ -92,118 +89,103 @@ cd Amazon-Automation
 python -m venv .venv
 ```
 
-Activate it:
+Activate the environment:
 
-```bash
+```powershell
 # Windows PowerShell
 .venv\\Scripts\\Activate.ps1
+```
 
-# Windows Command Prompt
+```bat
+:: Windows Command Prompt
 .venv\\Scripts\\activate.bat
+```
 
+```bash
 # macOS / Linux
 source .venv/bin/activate
 ```
 
-Install the declared dependencies:
+Install dependencies:
 
 ```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-Install Google Chrome separately. Do not assume the committed driver binary is suitable for your operating system or installed Chrome version.
+Install Chrome separately and review the driver setup before execution.
 
 ## Configuration
 
-The current script does not read environment variables or a configuration file. Its product search term is specified in the `__main__` block. Its `chromedriver_path` value is a machine-specific absolute path, but the current `ChromeService()` constructor does not pass that path to Selenium.
+The current program does not load environment variables or a configuration file. The product name and target URL are hard-coded. `.env.example` is informational only.
 
-For a local experiment, review the driver configuration before execution. Do not put passwords, browser cookies, session tokens, payment data, or personal account information in source files, environment examples, screenshots, or issue reports.
+Never put credentials, session cookies, browser profiles, payment information, or personal data in source files or examples.
 
 ## Run locally
-
-After installation and a review of the current limitations:
 
 ```bash
 python main.py
 ```
 
-This opens a visible browser and contacts a live external website. Do not run it against a personal shopping account or initiate checkout or payment activity. For development and repeatable validation, prefer a local mock page as described in [Testing strategy](docs/testing.md).
+This launches a visible browser and contacts a live external website. Do not use a personal shopping or payment account. Prefer local mock pages for development and tests.
 
-## Safety and responsible use
+## Safety
 
-This repository is for learning Selenium and understanding browser automation. Use it only on systems and workflows you are authorized to test.
+Use only systems and workflows for which you have explicit authorization. Follow the target website's terms and applicable law. Do not automate authentication, MFA, CAPTCHA solving, checkout, payment, bulk purchasing, or bypasses of anti-bot systems and rate limits. Stop when the site blocks or challenges automation.
 
-- Follow the target website's terms, policies, and applicable law.
-- Do not bypass login, MFA, CAPTCHA, bot detection, rate limits, regional controls, fraud controls, or purchase confirmation safeguards.
-- Do not automate checkout, payment, account creation, bulk purchasing, or inventory hoarding.
-- Do not collect or store account data, cookies, personal data, or payment information.
-- Use a disposable browser profile and non-sensitive test data.
-- Prefer controlled mock pages or an approved sandbox.
-- Stop when the site blocks or challenges automated access. Do not attempt to evade the control.
-
-Read [SECURITY.md](SECURITY.md) before changing the automation behavior.
+Read [SECURITY.md](SECURITY.md) and [Security and privacy](docs/security-and-privacy.md).
 
 ## Known limitations
 
-1. **Non-portable driver path:** `main.py` contains a developer-machine path.
-2. **Driver configuration mismatch:** the path is stored in an attribute and an environment variable, but the constructed `ChromeService()` does not use that attribute as its executable path.
-3. **Bundled binary:** `Drivers/chromedriver` is a large, platform-specific executable and may not match the installed browser.
-4. **Brittle selector:** an absolute XPath is tied to a specific DOM layout and search result arrangement.
-5. **Unverified action:** `wishListMainButton` is not a reliable assertion that a cart operation occurred.
-6. **Hard-coded target and data:** the site URL and search phrase are embedded in the script.
-7. **Cleanup is not exception-safe:** an exception before `close_browser()` may leave the browser process running.
-8. **No automated behavioral tests:** there are no current mocked page tests or browser integration tests.
-9. **External-site instability:** consent pages, localization, login state, markup changes, and anti-automation controls can interrupt the flow.
-10. **No observability contract:** there is no structured logging, screenshot policy, retry budget, or standardized failure report.
+1. Driver path is a developer-specific absolute path.
+2. The stored path is not passed to the `ChromeService` constructor.
+3. A large, platform-specific ChromeDriver binary is committed.
+4. The absolute XPath is brittle and DOM-dependent.
+5. The final `wishListMainButton` click is not verified as a cart action.
+6. Target URL and search phrase are hard-coded.
+7. Browser cleanup is not protected by `finally`.
+8. There is no automated behavior test suite or mock page.
+9. Live markup, localization, consent, login, and anti-automation controls can affect execution.
+10. There is no structured error model or diagnostics policy.
 
-These are known constraints, not features. Do not treat a successful browser launch as proof that the workflow completed correctly.
+These are current constraints, not supported features.
 
 ## Validation
 
-Run a syntax check:
-
 ```bash
 python -m py_compile main.py
-```
-
-Run repository checks:
-
-```bash
 python -m pip check
 ```
 
-The CI workflow validates Python syntax and documentation structure. It does not access Amazon, prove that the selectors still work, or make live purchases. See [Testing strategy](docs/testing.md).
+CI validates syntax and repository files. It does not access Amazon or prove that live selectors work.
 
-## Documentation map
+## Documentation
 
-| Document | Purpose |
+| Guide | Description |
 |---|---|
-| [Documentation index](docs/README.md) | Complete guide to the documentation set |
-| [Architecture](docs/architecture.md) | Current components, boundaries, and execution flow |
-| [Installation](docs/installation.md) | Environment setup and dependencies |
-| [Development](docs/development.md) | Local workflow and coding conventions |
-| [Browser and driver management](docs/browser-and-driver.md) | Chrome, ChromeDriver, Selenium Manager |
-| [Configuration](docs/configuration.md) | Current hard-coded configuration and future options |
-| [Automation workflow](docs/workflow.md) | Step-by-step behavior and selector assumptions |
-| [API](docs/api.md) | Local Python class interface, not an HTTP API |
-| [Testing strategy](docs/testing.md) | Static checks, mock testing, and safe browser tests |
-| [Troubleshooting](docs/troubleshooting.md) | Common local failures |
-| [Security and privacy](docs/security-and-privacy.md) | Data handling and safe execution boundaries |
-| [Deployment](docs/deployment.md) | Controlled execution and CI considerations |
-| [Operations](docs/operations.md) | Runbooks, cleanup, and failure handling |
-| [Limitations](docs/limitations.md) | Explicit technical and behavioral constraints |
-| [FAQ](docs/faq.md) | Common project questions |
-| [Database](docs/database.md) | Why no database is used |
-| [Changelog](CHANGELOG.md) | Project changes |
-| [Roadmap](ROADMAP.md) | Planned improvements |
+| [Docs index](docs/README.md) | Full documentation navigation |
+| [Architecture](docs/architecture.md) | Components and execution boundaries |
+| [Installation](docs/installation.md) | Environment setup |
+| [Development](docs/development.md) | Local workflow and standards |
+| [Browser and driver](docs/browser-and-driver.md) | Chrome and Selenium setup |
+| [Configuration](docs/configuration.md) | Current and proposed settings |
+| [Workflow](docs/workflow.md) | Actual browser interaction sequence |
+| [Python interface](docs/api.md) | Class methods, no HTTP API |
+| [Testing](docs/testing.md) | Static and mock-based testing |
+| [Security and privacy](docs/security-and-privacy.md) | Safe-use and data handling |
+| [Deployment](docs/deployment.md) | Local and CI execution |
+| [Operations](docs/operations.md) | Runbook and cleanup |
+| [Limitations](docs/limitations.md) | Known gaps |
+| [FAQ](docs/faq.md) | Common questions |
+| [Database](docs/database.md) | No persistence layer |
+| [Troubleshooting](docs/troubleshooting.md) | Common failures |
+
+Maintainer guidance: [Contributing](CONTRIBUTING.md), [Code of Conduct](CODE_OF_CONDUCT.md), [Security](SECURITY.md), [Support](SUPPORT.md), [Changelog](CHANGELOG.md), and [Roadmap](ROADMAP.md).
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md), follow the safety boundaries, and include evidence for any behavior change. Tests should use a local mock page or a specifically authorized environment. Do not include secrets or browser session data in a contribution.
+Read [CONTRIBUTING.md](CONTRIBUTING.md). Keep changes safe, narrowly scoped, tested with mock pages or explicitly authorized systems, and documented accurately.
 
 ## License
 
 MIT License. Copyright © 2025 Brajesh Kumar. See [LICENSE](LICENSE).
-
-Last updated: 2026-11-16 03:06 UTC
