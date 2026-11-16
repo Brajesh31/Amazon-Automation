@@ -1,4 +1,4 @@
-# Automation Workflow
+# 🔄 Automation Workflow
 
 ## Purpose and scope
 
