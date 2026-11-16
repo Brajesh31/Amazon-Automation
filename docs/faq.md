@@ -1,17 +1,41 @@
-# FAQ
+# Frequently Asked Questions
 
-## Does this place an order?
+## Is this production-ready?
 
-The current script does not implement checkout or payment submission, but it does interact with a live shopping page. Use it only with permission and safe, non-purchasing test data.
+No. It is a small Selenium proof of concept with hard-coded configuration, brittle selectors, incomplete cleanup guarantees and no automated behavior tests.
 
-## Why is the driver path not portable?
+## Does it definitely add an item to the cart?
 
-The original script contains a machine-specific Linux path. Driver discovery and configuration should be made explicit and platform-aware before reuse.
+No. The code clicks an element with ID `wishListMainButton`. It does not verify cart state, so the method name should not be treated as proof of an add-to-cart operation.
 
-## Can this run unattended?
+## Why does the driver path appear ineffective?
 
-It should not be used as an unattended shopping bot. Authorized test automation should run with rate limits, an isolated profile, explicit scope, and a controlled target.
+The path is assigned to an attribute, but `ChromeService()` is constructed without that executable path. Startup therefore uses default discovery or Selenium Manager.
 
-## Where should secrets go?
+## Why is a driver binary committed?
 
-Nowhere in source files. Use a secret manager or environment variables for future authorized integrations, and keep `.env` files ignored.
+The repository currently tracks a platform-specific binary. It is not portable and may not match your installed Chrome. Prefer Selenium Manager or an explicitly managed compatible driver. Consider removing the binary in a separate reviewed change after checking for workflow dependencies.
+
+## Is a database required?
+
+No. The script does not maintain durable application data, products, carts or orders.
+
+## Does the project expose an API?
+
+No HTTP API exists. The only interface is the local Python class in `main.py`.
+
+## Can it run in GitHub Actions?
+
+CI currently checks source syntax, dependencies and documentation only. It does not run the live browser workflow. Browser tests should use a local mock.
+
+## Should I use my personal shopping account?
+
+No. This prototype should not be used with personal shopping or payment accounts. Prefer mock pages or an explicitly authorized sandbox.
+
+## What if the website blocks automation?
+
+Stop the run. Do not bypass CAPTCHA, anti-bot systems, rate limits, authentication or other safeguards.
+
+## Where should I report a bug?
+
+Read [SUPPORT.md](../SUPPORT.md). Provide sanitized environment details. Never attach cookies, browser profiles, credentials, account identifiers or payment information.
