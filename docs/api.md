@@ -1,4 +1,4 @@
-# Local Python Interface
+# 🔌 Local Python Interface
 
 ## No HTTP API
 
