@@ -1,4 +1,4 @@
-# Database and Persistence
+# 🗃️ Database and Persistence
 
 ## Current state
 
