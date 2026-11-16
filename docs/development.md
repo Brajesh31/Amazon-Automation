@@ -1,37 +1,38 @@
 # Development Guide
 
-## Goals
+## Development goals
 
-Keep this repository a small, understandable Selenium learning project. Improve reliability through explicit configuration, browser lifecycle management, stable selectors, and repeatable mock-based tests. Avoid broad automation against live shopping flows.
+Keep this repository a small Selenium learning project. Prioritize portability, clear behavior, safe configuration, browser lifecycle correctness and repeatable tests. Avoid broad or unattended automation against live shopping workflows.
 
-## Repository conventions
+## Conventions
 
-- Keep Python source readable and use descriptive names.
+- Use readable Python and descriptive names.
 - Separate configuration from page interaction.
-- Centralize selectors rather than scattering raw XPath expressions.
-- Prefer explicit waits and meaningful expected conditions.
-- Use `try/finally` or a context manager to ensure that browser processes close.
-- Do not commit local driver binaries, secrets, browser profiles, cookies, downloads, or screenshots containing personal data.
-- Document any supported Python, Selenium, Chrome, or driver version changes.
+- Centralize selectors.
+- Prefer explicit waits and meaningful expected conditions over arbitrary sleeps.
+- Ensure drivers close on success and failure.
+- Declare runtime dependencies in `requirements.txt`.
+- Do not commit local paths, secrets, browser profiles, cookies, downloads or personal screenshots.
+- Document behavior as it exists, not as intended.
 
 ## Local development loop
 
 1. Create and activate a virtual environment.
 2. Install dependencies from `requirements.txt`.
-3. Make a narrowly scoped code change.
+3. Make a focused change.
 4. Run `python -m py_compile main.py`.
 5. Run `python -m pip check`.
-6. Add or update a mock-based test for behavior.
-7. Review the diff for personal data, generated artifacts, and inaccurate documentation.
-8. Update the README, relevant docs, and changelog when behavior changes.
+6. Add a mock-based test for changed behavior.
+7. Review the diff for generated files, user data and false claims.
+8. Update relevant docs and `CHANGELOG.md`.
 
-## Current code boundaries
+## Current source boundaries
 
-At present, `main.py` owns browser creation, navigation, element lookup, and the top-level invocation. The method called `search_and_add_to_cart` does not verify an add-to-cart result. Do not write tests that assert that it adds a product to the cart unless the implementation is first corrected and validated against a safe test fixture.
+`main.py` currently owns browser creation, navigation, selectors and top-level orchestration. The method called `search_and_add_to_cart` does not verify that a cart update occurs. Do not write a passing test for cart behavior until the implementation and its controlled fixture prove that behavior.
 
-## Suggested future layout
+## Possible future package structure
 
-The following is a possible future structure, not a claim about files that currently exist:
+This is a proposal, not a description of files currently present:
 
 ```text
 src/
@@ -48,12 +49,12 @@ tests/
   fixtures/
 ```
 
-Adopt this structure only when the additional abstraction improves testability. Do not move files merely to create a larger tree.
+Create this structure only when each layer provides testability or separation of concerns. Avoid adding empty folders or abstractions for appearance.
 
 ## Dependency management
 
-Keep runtime and development dependencies explicit. Update the dependency declaration whenever imports change. Avoid unbounded version assumptions for critical browser tooling. A lockfile may be appropriate if this project grows into a reproducible application.
+Keep imported packages declared. Document Python support and tested browser combinations. Update the dependency declaration when code imports change. Consider a lockfile if reproducible releases become a requirement.
 
-## Pull request expectations
+## Contribution expectations
 
-Every behavior change should state what changed, how it was tested, which browser and driver were used, and which limitations remain. Tests should run locally or on mock pages. Live checks require explicit authorization and must not submit checkout or payment actions.
+Describe the behavior change, validation method, browser and driver versions, and remaining limitations. Tests should use a local mock or explicitly authorized test environment. Do not include live shopping or payment actions.
