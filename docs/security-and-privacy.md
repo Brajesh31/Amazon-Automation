@@ -1,4 +1,4 @@
-# Security and Privacy
+# 🔐 Security and Privacy
 
 ## Scope
 
