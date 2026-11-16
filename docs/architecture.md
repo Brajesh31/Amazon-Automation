@@ -1,56 +1,56 @@
 # Architecture
 
-## 1. Overview
+## Overview
 
-Amazon Cart Automation is currently a single-module Python program built around Selenium WebDriver. Its architecture is intentionally small and has no internal service network, API server, database, task queue, frontend, or persistence layer.
+Amazon Cart Automation is a single-module Python program built around Selenium WebDriver. It currently has no internal service network, API server, database, task queue, frontend, or persistence layer.
 
-The main entry point is `main.py`. It defines one class, `AmazonCartAutomation`, and invokes that class from the module's `__main__` block.
+The entry point is `main.py`. It defines `AmazonCartAutomation` and creates an instance from the module's `__main__` block.
 
-## 2. Runtime components
+## Runtime components
 
 | Component | Responsibility | Current implementation |
 |---|---|---|
-| Python runtime | Executes the script | Local Python interpreter |
-| Selenium | Controls browser through WebDriver | Imported from `selenium` |
-| Chrome | Renders the remote website | Installed system browser |
-| ChromeDriver / Selenium Manager | WebDriver protocol bridge and driver discovery | A driver binary exists in the repository; service configuration currently relies on default discovery |
+| Python | Executes the script | Local interpreter |
+| Selenium | Controls the browser | Selenium Python package |
+| Chrome | Renders the remote page | Installed system browser |
+| ChromeDriver / Selenium Manager | WebDriver bridge and driver discovery | Bundled binary exists; service uses default discovery |
 | Automation class | Owns browser and interaction methods | `AmazonCartAutomation` |
-| Amazon page | External DOM and user-facing controls | Live external dependency |
+| Target page | External DOM and user-facing controls | Live external dependency |
 
-## 3. Execution flow
+## Execution sequence
 
-1. The module creates an `AmazonCartAutomation` instance.
-2. Its constructor stores a machine-specific driver path, sets an environment variable, constructs a default Chrome service, creates Chrome, and deletes session cookies.
+1. The module constructs an `AmazonCartAutomation` instance.
+2. The constructor stores a machine-specific driver path, sets an environment variable, creates a default Chrome service, starts Chrome, and deletes session cookies.
 3. `setup()` maximizes the browser window.
-4. `search_and_add_to_cart()` opens the homepage, locates a search field, enters a query, submits the form, clicks a first-result link, and interacts with a product-page element.
-5. `close_browser()` calls `quit()` on the WebDriver.
+4. `search_and_add_to_cart()` opens the homepage, locates the search box, submits a query, clicks a first-result link, then clicks a product-page element.
+5. `close_browser()` calls `quit()`.
 
-The method name overstates the current behavior. The final selector is `wishListMainButton`, so the code does not prove that it adds an item to a shopping cart.
+The method name overstates the final behavior. The selector is `wishListMainButton`; there is no assertion that a cart update took place.
 
-## 4. External boundary
+## External boundary
 
-The external website is not controlled by this repository. Markup, selectors, consent screens, regional settings, login requirements, experiments, and anti-automation controls may change independently. The script has no adapter contract or stable API with the site.
+The target site is independent of this repository. Markup, consent screens, regional settings, login prompts, experiments and anti-automation controls can change. There is no stable API contract with the external page.
 
-A change to the target DOM should be treated as an integration change, not as an ordinary internal refactor. Validate against a controlled fixture first and only run live checks when explicitly authorized.
+Treat DOM changes as integration changes. Validate selectors against controlled fixtures first and only run live checks when explicitly authorized.
 
-## 5. State and persistence
+## State and persistence
 
-The script holds a WebDriver object in memory. It does not persist product data, cart state, user accounts, cookies, or order records. The constructor deletes cookies from the active browser session. There is no database or file-backed state store.
+The WebDriver exists in memory while the Python process runs. The constructor deletes cookies in the active browser session. No product, cart, account, cookie or order state is persisted by the application. There is no database.
 
-## 6. Error and lifecycle model
+## Lifecycle and errors
 
-The current entry point calls `close_browser()` only after the search method returns normally. If browser creation or an interaction raises an exception, the cleanup method may not execute. Future changes should manage the WebDriver with a context manager or `try/finally`.
+The current entry point calls `close_browser()` only after the interaction returns normally. Exceptions may prevent cleanup. A future implementation should use `try/finally` or a context manager.
 
-## 7. Architectural limitations
+## Current architectural gaps
 
-- One file combines browser setup, navigation, selectors, and orchestration.
-- Configuration is embedded in source code.
-- Selectors are embedded in interaction code.
+- One file combines setup, navigation, selectors and orchestration.
+- Configuration is embedded in source.
+- Selectors are not centralized.
 - Driver setup is not portable.
-- No typed domain model describes a product, cart, or test result.
-- There are no automated tests or mock pages.
-- No structured logging or standardized error model exists.
+- No page-object abstraction or domain model exists.
+- No automated tests or mock pages exist.
+- No structured logging or standard error model exists.
 
-## 8. Recommended evolution
+## Recommended evolution
 
-A safe, maintainable next step is to extract configuration, browser lifecycle management, a page-object abstraction, and a local mock page. Keep external interactions behind a small adapter. Add tests for selectors and lifecycle behavior without making live shopping changes. Do not add checkout or payment automation.
+Extract configuration, browser lifecycle and page interaction only when it improves testability. Keep external browser operations behind a small adapter. Add local HTML fixtures and tests that do not make live shopping changes. Do not add checkout or payment automation.
