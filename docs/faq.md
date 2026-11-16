@@ -1,4 +1,4 @@
-# Frequently Asked Questions
+# ❓ Frequently Asked Questions
 
 ## Is this production-ready?
 
