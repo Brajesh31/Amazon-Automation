@@ -2,43 +2,36 @@
 
 ## Components
 
-Selenium automates a browser through the WebDriver protocol. For Chrome, this involves:
+Selenium controls Chrome through the WebDriver protocol. The local runtime requires a Chrome installation and a compatible driver, discovered explicitly or through Selenium Manager.
 
-1. A Chrome browser installation.
-2. A compatible ChromeDriver executable, located explicitly or discovered by Selenium Manager.
-3. The Selenium Python package.
-4. A local WebDriver session managed by the Python process.
+## Current repository behavior
 
-A mismatch between Chrome and ChromeDriver versions can prevent the browser from starting.
+The constructor stores a developer-specific Linux path in `self.chromedriver_path` and sets `webdriver.chrome.driver`. It then constructs `ChromeService()` without passing the stored executable path. The path is therefore not wired into the service.
 
-## What this repository currently does
+The repository also tracks a large platform-specific executable at `Drivers/chromedriver`. It may not run on other operating systems or match the installed Chrome version.
 
-The constructor contains a developer-specific Linux path in `self.chromedriver_path` and sets `webdriver.chrome.driver`. However, it then constructs `ChromeService()` without passing that path. The code does not explicitly connect the stored path to the service.
+## Preferred approach
 
-The repository also tracks `Drivers/chromedriver`, a large platform-specific executable. It may be incompatible with other systems or browser versions. It should not be considered a portable dependency.
+Use a current Selenium release and Selenium Manager where available. It can discover or obtain a compatible browser driver. Network restrictions or enterprise policy may affect this behavior.
 
-## Recommended local approach
-
-Use a current Selenium release and its Selenium Manager support where possible. Selenium Manager can discover or obtain a compatible driver as part of WebDriver initialization. Network and policy restrictions may affect this behavior.
-
-Where an explicitly installed driver is required, configure the service with a validated executable path. Do not hard-code a developer's home directory or assume that a Linux binary will run on Windows or macOS.
+When manual driver management is required, install a compatible binary from a trusted source and pass its validated path to the Service constructor. Do not hard-code a developer's home directory or assume a Linux executable is portable.
 
 ## Diagnostics
 
-Record these values when investigating startup failures:
+When investigating startup problems, record:
 
 - Operating system and architecture.
 - Python version.
 - Selenium version.
 - Chrome version.
 - ChromeDriver version, if manually managed.
-- Whether the process can execute the driver.
-- Exact WebDriver exception, with user-specific paths and secrets redacted.
+- Whether the driver is executable.
+- Sanitized WebDriver exception details.
 
-## Binary handling
+## Binary policy
 
-Before removing the committed binary, verify whether any supported workflow explicitly depends on it. If it is no longer required, remove it in a separate reviewed change and add a clear dependency policy. Avoid replacing it with another unpinned executable.
+Before removing the existing binary, verify no supported workflow relies on it. If obsolete, remove it in a separate reviewed change and document the driver-management approach. Do not replace it with an unpinned executable.
 
 ## Security
 
-Download browser and driver components only from trusted distribution channels. Keep them patched. Do not commit browser profiles, cookies, local storage, or session state. Use disposable profiles for authorized tests.
+Obtain Chrome and driver components through trusted distribution channels. Keep them updated. Never commit browser profiles, cookies or local storage. Use disposable profiles for authorized test runs.
