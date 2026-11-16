@@ -1,4 +1,4 @@
-# Deployment and Execution
+# 🚀 Deployment and Execution
 
 ## Deployment model
 
