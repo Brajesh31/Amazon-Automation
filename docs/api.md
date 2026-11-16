@@ -2,50 +2,38 @@
 
 ## No HTTP API
 
-This repository does not expose an HTTP server, REST endpoint, GraphQL API, webhook, or network service. The term "API" in this document refers only to the Python class methods in `main.py`.
+This project does not expose an HTTP server, REST API, GraphQL API, webhook, or network service. This document describes only the local Python class in `main.py`.
 
-## Class: `AmazonCartAutomation`
+## `AmazonCartAutomation()`
 
-### Constructor
+The constructor creates a Chrome WebDriver session and deletes cookies from that session. It stores a machine-specific driver path but does not pass the path to the `ChromeService` instance. There are no constructor parameters for browser options, URL, timeout, driver path or profile directory.
 
-```python
-AmazonCartAutomation()
-```
-
-Creates a Chrome WebDriver session and deletes cookies from that browser session. It currently stores a machine-specific driver path but does not pass it to the `ChromeService` object.
-
-The constructor has no parameters for target URL, browser options, timeout, driver path, or profile directory.
-
-### `setup()`
+## `setup()`
 
 ```python
 automation.setup()
 ```
 
-Maximizes the browser window. It returns no value and performs no explicit readiness validation.
+Maximizes the browser window. It returns no value and does not validate page readiness.
 
-### `search_and_add_to_cart(product_name)`
+## `search_and_add_to_cart(product_name)`
 
 ```python
 automation.search_and_add_to_cart("Wireless Earbuds")
 ```
 
-Navigates to the hard-coded Amazon US homepage, searches the supplied string, opens a result selected by an absolute XPath, and clicks an element identified as `wishListMainButton`.
+Navigates to the hard-coded Amazon US homepage, submits a search, clicks an absolute-XPath result, and clicks an element identified by `wishListMainButton`.
 
-The name is not proof of the final behavior. The method currently does not verify that an item is present in the shopping cart.
+The method name is not evidence of a successful cart operation. The implementation does not verify cart state.
 
-### `close_browser()`
+## `close_browser()`
 
 ```python
 automation.close_browser()
 ```
 
-Calls `quit()` on the Selenium WebDriver. It should be called even if an earlier step fails. The current top-level script does not use a `finally` block.
+Calls `quit()` on the WebDriver. The current entry point does not protect this call with a `finally` block.
 
-## Exceptions
+## Exceptions and compatibility
 
-The methods do not define a project-specific exception hierarchy. Selenium, browser startup, network, timeout, and element lookup exceptions may propagate to the caller.
-
-## Compatibility
-
-These methods are an internal prototype interface. They are not documented as a stable package API and may change as the project is refactored.
+The class does not define a project-specific exception hierarchy. Selenium and browser startup, timeout, navigation and element lookup errors may propagate directly. These methods are an internal prototype interface, not a stable public package API.
