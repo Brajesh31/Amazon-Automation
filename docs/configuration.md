@@ -1,39 +1,31 @@
 # Configuration
 
-## Current configuration
+## Current behavior
 
-The current script is not environment-driven. The following values are embedded in `main.py`:
+The script does not load environment variables, a TOML/YAML file, command-line options or a configuration object. Important values are embedded in `main.py`.
 
-| Setting | Current value | Location | Notes |
+| Setting | Value | Current location | Limitation |
 |---|---|---|---|
-| Homepage | `https://www.amazon.com/` | `search_and_add_to_cart` | US domain is hard-coded |
-| Search term | `Wireless Earbuds` | `__main__` block | Not supplied by command-line arguments |
-| Search field selector | `twotabsearchtextbox` | `search_and_add_to_cart` | Site-specific ID |
-| First product selector | Absolute XPath | `search_and_add_to_cart` | Highly fragile |
-| Product-page action | `wishListMainButton` | `search_and_add_to_cart` | Does not verify cart behavior |
+| Target URL | `https://www.amazon.com/` | Workflow method | Fixed US domain |
+| Product query | `Wireless Earbuds` | Entry point | Hard-coded |
+| Search selector | `twotabsearchtextbox` | Workflow method | External DOM dependency |
+| Result selector | Absolute XPath | Workflow method | Highly fragile |
+| Product action selector | `wishListMainButton` | Workflow method | Not verified as cart action |
 | Driver path | Developer-specific absolute path | Constructor | Not portable |
-| Wait values | 10 and 100 seconds | Interaction method | Hard-coded |
+| Wait duration | 10 and 100 seconds | Workflow method | Hard-coded |
 
 ## Environment example
 
-`.env.example` is informational only. The Python program does not currently load it. Adding values to that file will not change runtime behavior.
+`.env.example` is informational only. The program does not load it. Adding keys to the file will not affect execution.
 
-Never add credentials, session cookies, account tokens, card details, or personal information to the example file.
+Never add passwords, cookies, account tokens, payment data or personal information to configuration examples.
 
-## Recommended future configuration
+## Recommended future settings
 
-For authorized mock or test use, a future configuration object could expose:
+For an authorized mock/test workflow, a future configuration could include a local test base URL, non-sensitive search term, page timeout, browser visibility, explicit driver path where needed, and temporary profile directory.
 
-- A test base URL, defaulting to a local mock rather than a public shopping site.
-- A non-sensitive search term.
-- Browser visibility/headless mode for controlled tests.
-- Explicit wait timeout.
-- Browser binary path where required.
-- A disposable profile directory.
-- Screenshot output directory with a retention policy.
-
-Validate all configuration at startup. Reject unexpected schemes and unapproved target hosts. Avoid accepting arbitrary external URLs from untrusted input.
+Validate configuration at startup. Restrict allowed target hosts and URL schemes. Do not accept arbitrary destinations from untrusted input.
 
 ## Driver configuration
 
-The constructor currently assigns a path to `self.chromedriver_path`, but creates `ChromeService()` without that executable path. The assignment is therefore not wired into the Service object. Prefer Selenium Manager for local development or pass an explicitly validated driver path to the Service constructor. Details are in [Browser and driver management](browser-and-driver.md).
+The code assigns a path to `self.chromedriver_path` but calls `ChromeService()` without passing it. Use Selenium Manager or pass a validated executable path to the service constructor. See [Browser and driver management](browser-and-driver.md).
