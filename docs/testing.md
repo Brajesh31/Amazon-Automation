@@ -1,48 +1,45 @@
 # Testing Strategy
 
-## Current test coverage
+## Existing coverage
 
-There is no automated unit, integration, or end-to-end test suite in the repository. A Python syntax check is available, but it does not verify browser startup, selector correctness, or the result of an interaction.
+There is currently no automated unit, integration or end-to-end test suite. A Python syntax check is available, but it does not prove browser startup, selector correctness or successful interaction with a product page.
 
 ## Static checks
-
-Run:
 
 ```bash
 python -m py_compile main.py
 python -m pip check
 ```
 
-The GitHub Actions workflow runs the syntax check and verifies the presence of required documentation. It does not access the live website.
+GitHub Actions performs static validation and documentation integrity checks. It does not connect to Amazon or perform shopping actions.
 
-## Recommended testing layers
+## Recommended test layers
 
-### 1. Unit tests
+### Unit tests
 
-Test pure logic after configuration and workflow logic are extracted from the WebDriver class. Use mocks for browser and page dependencies. Unit tests should not create a real Chrome process or make network requests.
+After separating configuration and workflow logic from WebDriver operations, test pure logic and error handling with mocks. Unit tests should not start a real browser or make network requests.
 
-### 2. Mock-page tests
+### Mock page tests
 
-Create local HTML fixtures representing the expected search form and product result. Serve them locally or load them through a controlled test setup. Verify that selectors and wait conditions behave as expected.
+Use local HTML fixtures for the search form and product result. Load them in a controlled browser test or use a local test server. This makes selector behavior repeatable without depending on public search results.
 
-### 3. Browser lifecycle tests
+### Lifecycle tests
 
-Use a mocked driver factory to verify that the driver is quit when navigation or lookup fails. This is especially important because the current script only closes the browser on the success path.
+Use a mocked driver factory to assert that `quit()` is called after both successful runs and exceptions. This is important because the current entry point can leave Chrome open when an earlier action fails.
 
-### 4. Authorized integration tests
+### Authorized browser integration tests
 
-Only run against a site or sandbox where browser automation is explicitly permitted. Use a disposable profile and safe test data. Do not log in to a personal shopping account or attempt checkout, payment, or safeguard bypasses.
+Run only against a sandbox or target where automation is explicitly permitted. Use disposable profiles and non-sensitive data. Do not sign in to personal shopping accounts or attempt checkout, payment or safeguard bypasses.
 
-## Test design requirements
+## Test quality requirements
 
-- Avoid dependence on live product ranking.
+- Avoid live product ranking and changing public DOM as test data.
 - Avoid absolute XPath selectors.
-- Assert observable and documented outcomes.
-- Keep test data non-sensitive.
-- Do not include session cookies or browser profile directories in test artifacts.
-- Make all waits bounded.
-- Ensure the browser quits after both success and failure.
+- Assert documented outcomes.
+- Keep waits bounded.
+- Do not capture session cookies, browser profiles or account content.
+- Guarantee browser cleanup after all test paths.
 
-## Current CI boundary
+## CI boundary
 
-CI validates repository integrity and Python syntax using a controlled runner. It intentionally does not run the live Amazon workflow. A CI green check is not evidence that the live site selectors work.
+A successful CI run means the configured repository checks passed. It does not prove the live website selectors still work or that the final element click changes cart state.
